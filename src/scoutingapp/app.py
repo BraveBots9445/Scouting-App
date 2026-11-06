@@ -1,4 +1,3 @@
-
 """
 A scouting app for team 9445 The Brave Bots
 """
@@ -14,6 +13,7 @@ class ScoutingApp(toga.App):
         self.competiton = ""
         self.round = ""
         self.team = ""
+        self.score = 0
 
         outer_box = toga.Box(
             direction=COLUMN,
@@ -21,6 +21,19 @@ class ScoutingApp(toga.App):
         )
 
         main_box = toga.Box(
+            direction=COLUMN,
+            background_color="#242424",
+            margin=20,
+            padding=15,
+            flex=1
+        )
+
+        scouting_outer_box = toga.Box(
+            direction=COLUMN,
+            background_color="#000000"
+        )
+
+        scouting_box = toga.Box(
             direction=COLUMN,
             background_color="#242424",
             margin=20,
@@ -106,22 +119,14 @@ class ScoutingApp(toga.App):
             self.round = self.round_input.value
             self.team = self.team_input.value
 
-            scouting_outer_box = toga.Box(
-                direction=COLUMN,
-                background_color="#000000"
-            )
-
-            scouting_box = toga.Box(
-                direction=COLUMN,
-                background_color="#242424",
-                margin=20,
-                padding=15,
-                flex=1
-            )
-
             scouting_outer_box.add(scouting_box)
-
             self.main_window.content = scouting_outer_box
+
+        def score(widget):
+            self.score += 1
+
+        def defend(widget):
+            pass
 
         confirm_button = toga.Button(
             "Confirm",
@@ -131,11 +136,36 @@ class ScoutingApp(toga.App):
             background_color="#FF7900"
         )
 
+        score_button = toga.Button(
+            on_press=score,
+            margin=(150, 20, 150, 20),
+            width=100,
+            height=100,
+            background_color="#FF9700",
+            color="#FFFFFF",
+            padding=10,
+            icon=toga.Icon("score_icon.png")
+        )
+
+        defend_button = toga.Button(
+            on_press=defend,
+            margin=(150, 20, 150, 20),
+            color="#000000",
+            background_color="#FF7900",
+            width=100,
+            height=100,
+            padding=10,
+            icon=toga.Icon("defend_icon.png")
+        )
+
         main_box.add(self.regional_box)
         main_box.add(self.competiton_box)
         main_box.add(self.round_box)
         main_box.add(self.team_box)
         main_box.add(confirm_button)
+
+        scouting_box.add(score_button)
+        scouting_box.add(defend_button)
 
         outer_box.add(main_box)
 
