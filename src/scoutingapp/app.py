@@ -12,10 +12,10 @@ from toga.style.pack import COLUMN, ROW
 class ScoutingApp(toga.App):
     def startup(self):
 
-        self.regional = ""
-        self.competiton = ""
-        self.round = ""
-        self.team = ""
+        regional = []
+        competiton = []
+        round = []
+        team = []
         self.score = 0
         self.defend_time = 0
         self.defending = False
@@ -59,7 +59,7 @@ class ScoutingApp(toga.App):
         )
 
         score_label = toga.Label(
-            f"Score: {self.score}",
+            f"Points scored: {self.score}",
             margin=10,
             color="#FF9700",
         )
@@ -155,9 +155,14 @@ class ScoutingApp(toga.App):
             scouting_outer_box.add(scouting_box)
             self.main_window.content = scouting_outer_box
 
+            regional.append(self.regional_input.value)
+            competiton.append(self.competiton_input.value)
+            round.append(self.round_input.value)
+            team.append(self.team_input.value)
+
         def score(widget):
             self.score += 1
-            score_label.text = f"Score: {self.score}"
+            score_label.text = f"Points scored: {self.score}"
 
         def defend(widget):
             if self.defending == False:
