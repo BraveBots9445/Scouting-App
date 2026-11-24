@@ -12,10 +12,12 @@ from toga.style.pack import COLUMN, ROW
 class ScoutingApp(toga.App):
     def startup(self):
 
-        regional = []
-        competiton = []
-        round = []
-        team = []
+        regional_list = []
+        competiton_list = []
+        round_list = []
+        team_list = []
+        score_list = []
+        defend_time_list = []
         self.score = 0
         self.defend_time = 0
         self.defending = False
@@ -155,10 +157,10 @@ class ScoutingApp(toga.App):
             scouting_outer_box.add(scouting_box)
             self.main_window.content = scouting_outer_box
 
-            regional.append(self.regional_input.value)
-            competiton.append(self.competiton_input.value)
-            round.append(self.round_input.value)
-            team.append(self.team_input.value)
+            regional_list.append(self.regional_input)
+            competiton_list.append(self.competiton_input)
+            round_list.append(self.round_input)
+            team_list.append(self.team_input)
 
         def score(widget):
             self.score += 1
@@ -174,6 +176,11 @@ class ScoutingApp(toga.App):
             else:
                 self.defending = False
                 defend_label.text = "Not defending"
+
+        def end_match(widget):
+            self.main_window.content = outer_box
+            score_list.append(self.score)
+            defend_time_list.append(self.defend_time)
 
         confirm_button = toga.Button(
             "Confirm",
@@ -205,6 +212,17 @@ class ScoutingApp(toga.App):
             icon=toga.Icon("defend_icon.png")
         )
 
+        end_button = toga.Button(
+            on_press=end_match,
+            margin=(0, 0, 0, 250),
+            color="#000000",
+            background_color="#FF9700",
+            width=50,
+            height=50,
+            padding=5,
+            icon=toga.Icon("end_match_icon.png")
+        )
+
         score_box = toga.Box(
             direction=COLUMN,
             margin=20
@@ -220,12 +238,30 @@ class ScoutingApp(toga.App):
         defend_box.add(defend_label)
         defend_box.add(defend_time_label)
 
+        end_label = toga.Label(
+            "End match",
+            margin=0,
+            color="#FF9700"
+        )
+
+        end_box = toga.Box(
+            direction=COLUMN,
+            margin=(0, 0, 0, 100),
+            flex=1
+        )
+
+        end_box.add(toga.Box(flex=1))
+        end_box.add(end_label)
+        end_box.add(end_button)
+
         buttons_box = toga.Box(
             direction=ROW,
-            margin=10
+            margin=10,
+            flex=1
         )
         buttons_box.add(score_box)
         buttons_box.add(defend_box)
+        buttons_box.add(end_box)
 
         main_box.add(self.regional_box)
         main_box.add(self.competiton_box)
