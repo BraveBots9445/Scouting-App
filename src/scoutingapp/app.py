@@ -2,7 +2,8 @@
 """
 A scouting app for team 9445 The Brave Bots
 """
-
+import json
+import os
 import toga
 import time
 import asyncio
@@ -12,15 +13,21 @@ from toga.style.pack import COLUMN, ROW
 class ScoutingApp(toga.App):
     def startup(self):
 
-        regional_list = []
-        competiton_list = []
-        round_list = []
-        team_list = []
-        score_list = []
-        defend_time_list = []
+        data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scouting_data.json")
+
+        match_list = []
+
         self.score = 0
         self.defend_time = 0
         self.defending = False
+
+        if os.path.exists(data_file):
+            with open(data_file, "r") as file:
+                match_list = json.load(file)
+
+        def save_data():
+            with open(data_file, "w") as file:
+                json.dump(match_list, file, indent=4)
 
         outer_box = toga.Box(
             direction=COLUMN,
@@ -157,11 +164,6 @@ class ScoutingApp(toga.App):
             scouting_outer_box.add(scouting_box)
             self.main_window.content = scouting_outer_box
 
-            regional_list.append(self.regional_input)
-            competiton_list.append(self.competiton_input)
-            round_list.append(self.round_input)
-            team_list.append(self.team_input)
-
         def score(widget):
             self.score += 1
             score_label.text = f"Points scored: {self.score}"
@@ -179,8 +181,25 @@ class ScoutingApp(toga.App):
 
         def end_match(widget):
             self.main_window.content = outer_box
-            score_list.append(self.score)
-            defend_time_list.append(self.defend_time)
+
+            match_list.append([
+                self.regional,
+                self.competiton,
+                self.round,
+                self.team,
+                self.score,
+                self.defend_time
+            ])
+
+            self.score = 0
+            self.defend_time = 0
+            self.defending = False
+
+            score_label.text = f"Points scored: {self.score}"
+            defend_label.text = "Not defending"
+            defend_time_label.text = "Defend Time: 0.0 seconds"
+
+            save_data()
 
         confirm_button = toga.Button(
             "Confirm",
@@ -212,9 +231,30 @@ class ScoutingApp(toga.App):
             icon=toga.Icon("defend_icon.png")
         )
 
+        score_box = toga.Box(direction=COLUMN, margin=20)
+        score_box.add(score_button)
+        score_box.add(score_label)
+
+        defend_box = toga.Box(direction=COLUMN, margin=20)
+        defend_box.add(defend_button)
+        defend_box.add(defend_label)
+        defend_box.add(defend_time_label)
+
+        top_buttons = toga.Box(direction=ROW, margin=10)
+        top_buttons.add(score_box)
+        top_buttons.add(defend_box)
+
+        spacer = toga.Box(flex=1)
+
+        end_label = toga.Label(
+            "End match",
+            margin=(0, 0, 5, 0),
+            color="#FF9700"
+        )
+
         end_button = toga.Button(
             on_press=end_match,
-            margin=(0, 0, 0, 250),
+            margin=10,
             color="#000000",
             background_color="#FF9700",
             width=50,
@@ -223,45 +263,13 @@ class ScoutingApp(toga.App):
             icon=toga.Icon("end_match_icon.png")
         )
 
-        score_box = toga.Box(
-            direction=COLUMN,
-            margin=20
-        )
-        score_box.add(score_button)
-        score_box.add(score_label)
+        end_column = toga.Box(direction=COLUMN, margin=(0, 10, 10, 10))
+        end_column.add(end_label)
+        end_column.add(end_button)
 
-        defend_box = toga.Box(
-            direction=COLUMN,
-            margin=20
-        )
-        defend_box.add(defend_button)
-        defend_box.add(defend_label)
-        defend_box.add(defend_time_label)
-
-        end_label = toga.Label(
-            "End match",
-            margin=0,
-            color="#FF9700"
-        )
-
-        end_box = toga.Box(
-            direction=COLUMN,
-            margin=(0, 0, 0, 100),
-            flex=1
-        )
-
-        end_box.add(toga.Box(flex=1))
-        end_box.add(end_label)
-        end_box.add(end_button)
-
-        buttons_box = toga.Box(
-            direction=ROW,
-            margin=10,
-            flex=1
-        )
-        buttons_box.add(score_box)
-        buttons_box.add(defend_box)
-        buttons_box.add(end_box)
+        end_row = toga.Box(direction=ROW)
+        end_row.add(toga.Box(flex=1))
+        end_row.add(end_column)
 
         main_box.add(self.regional_box)
         main_box.add(self.competiton_box)
@@ -269,7 +277,9 @@ class ScoutingApp(toga.App):
         main_box.add(self.team_box)
         main_box.add(confirm_button)
 
-        scouting_box.add(buttons_box)
+        scouting_box.add(top_buttons)
+        scouting_box.add(spacer)
+        scouting_box.add(end_row)
 
         outer_box.add(main_box)
 
